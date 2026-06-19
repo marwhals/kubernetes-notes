@@ -1,0 +1,27 @@
+\contentsline {chapter}{\numberline {1}Notes info }{5}{chapter.1}%
+\contentsline {paragraph}{Purpose of notes}{5}{section*.2}%
+\contentsline {chapter}{\numberline {2}Introduction}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Kubernetes Architecture}{7}{section.2.1}%
+\contentsline {paragraph}{Nodes}{7}{section*.3}%
+\contentsline {paragraph}{Cluster}{7}{section*.4}%
+\contentsline {paragraph}{Master node}{7}{section*.5}%
+\contentsline {subsection}{\numberline {2.1.1}What is installed on a system when installing Kubernetes?}{7}{subsection.2.1.1}%
+\contentsline {subsubsection}{API Server}{7}{section*.6}%
+\contentsline {subsubsection}{etcd keystore}{8}{section*.7}%
+\contentsline {subsubsection}{The Scheduler}{8}{section*.8}%
+\contentsline {subsubsection}{Controllers}{8}{section*.9}%
+\contentsline {subsubsection}{Container Runtime}{8}{section*.10}%
+\contentsline {subsubsection}{Kubelet}{8}{section*.11}%
+\contentsline {subsubsection}{}{8}{section*.12}%
+\contentsline {subsubsection}{Kube command line or kubectl or kube control}{8}{section*.13}%
+\contentsline {section}{\numberline {2.2}Docker-vs-ContainerD}{9}{section.2.2}%
+\contentsline {chapter}{\numberline {3}Core Concepts}{11}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Configuration}{13}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Multi-Container Pods}{15}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Observability}{17}{chapter.6}%
+\contentsline {chapter}{\numberline {7}POD Design}{19}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Services and Networking}{21}{chapter.8}%
+\contentsline {chapter}{\numberline {9}State Persistence}{23}{chapter.9}%
+\contentsline {chapter}{\numberline {10}Security}{25}{chapter.10}%
+\contentsline {chapter}{\numberline {11}Helm Fundementals}{27}{chapter.11}%
+\contentsline {chapter}{\numberline {12}Kustomize}{29}{chapter.12}%
