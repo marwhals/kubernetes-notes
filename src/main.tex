@@ -1,5 +1,5 @@
 %! Author = Marjan
-%! Date = 15/04/2025
+%! Date = 19/06/2026
 
 % Preamble
 \documentclass[11pt]{book}
@@ -30,9 +30,31 @@
 \usepackage{xcolor}
 \usepackage{tweaklist}
 \usepackage{tikzexternal}
+\usepackage{xcolor}
+\usepackage{listings}
 
-\definecolor{awsorange}{RGB}{255,153,0}
-\definecolor{awsblue}{RGB}{35,47,62}
+% Define YAML language
+\lstdefinelanguage{yaml}{
+    keywords={true,false,null,y,n},
+    keywordstyle=\color{blue}\bfseries,
+    basicstyle=\ttfamily\small,
+    comment=[l]{\#},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    morestring=[b]",
+    morestring=[b]',
+    sensitive=false
+}
+
+
+% Terminal
+\lstdefinelanguage{terminal}{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{black!5},
+    frame=single,
+    columns=fullflexible
+}
+
 
 % AWS icon command
 \newcommand{\awsicon}[4]{
@@ -61,7 +83,7 @@
 % Set up the header
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{AWS Solutions Architecture Notes}
+\fancyhead[L]{Kubernetes Notes}
 \fancyhead[C]{Your Name}
 \fancyhead[R]{\thepage}
 % Document
@@ -70,7 +92,7 @@
     \begin{titlepage}
         \centering
         \vspace*{2in}
-        \Huge \textbf{Kubernetes Certified Application Developer}
+        \Huge \textbf{Kubernetes Notes}
         \vfill
         \Large Your Name
         \vfill
@@ -82,12 +104,18 @@
     \tableofcontents
     \newpage
 
+
     \chapter{Notes info and Introduction}
+
     \paragraph{Purpose of notes}
     There purpose of these notes are to gain an understanding of Docker and have reference material in case I decide to sit the DCA exam.
 
+
     \chapter{Core Concepts}
+
+
     \section{Kubernetes Architecture}
+
     \paragraph{Nodes}
     A node is a machine, physical or virtual upon which Kubernetes is installed.
     This worker machine is where containers will be launched by Kubernetes.
@@ -165,7 +193,8 @@
     \subsubsection{Kube command line or kubectl or kube control}
     The kube control tool, is used to deploy and manage applications on Kubernetes cluster to get cluster information, to get the status of other nodes in the cluster. And to manage other things.
     The kubectl clister infor command is used to view infromation about the cluster and the kubectl get nodes command is used to list all the nodes as a part of the cluster.
-    
+
+
     \section{Docker-vs-ContainerD}
     Initially kubernets was the container runtime for docker only. Support for other container runtimes was added.
     This was done via an interface called Container Runtime Interface or CRI.
@@ -192,7 +221,7 @@
     If you don't need dockers other features you could ideally just install container D alone.
 
     \subsubsection{CLI - ctr}
-    
+
     \subsubsection{CLI - nerdctl}
     nerdctl provides a docker like CLI for containerd
     nerdctl supports Docker compose
@@ -207,33 +236,516 @@
     crictl provides a CLI for CRI-compatible container runtimes
     installed separately
     used to inspect and debug container runtimes
-        not to create container ideally
+    not to create container ideally
     works across different runtimes
 
 %    TODO add table - docker vs crictl
 
+
     \section{Pods}
+%    TODO create diagram
+    Containers are encapsulated into a Kubernetes object know as pods.
+    A pod is a single instance of an application.
+    A pod is the smallest object you can create in Kubernetes.
+
+    Can increase the number of pods to scale the application.
+    Can add a new node and add pods to that if the current nodes do not have capacity.
+
+    Pods usually have a 1 to 1 relationship with
+    You do not add containers to a single pod to scale your applicaiton.
+%    TODO add diagram
+
+    \subsection{Muti-Container Pods}
+    You can have multiple containers in the same pod but they will not be the same kind.
+    Example: helper container. The two containers in the same pod can communicate with each other over locahost.
+    They can easily share the same storage space and the same network space.
+
 
     \section{YAML Basics}
 
 
-    \chapter{Core Concepts}
+    \section{Pods with YAML}
+    Kubernetes uses YAML files as inputs for the creation of objects such as pods, replicas and deployments, services.
+
+    \subsection{YAML in Kubernetes}
+    \begin{itemize}
+        \item apiVersion: This is the version of the Kubernetes API we are using to create the object. Must use the correct API version for the objects we are trying to create. See other options.
+        \item kind: This refers to the type object we are trying to create. Options are Pod, Service, ReplicatSet and Deployment.
+        \item metadata: This is data about the object like its name, labels, etc.
+        \item spec:
+    \end{itemize}
+
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f pod-definition.yml
+        kubectl get pods
+        kubectl describe pod myapp-pod
+    \end{lstlisting}
+
+%TODO update this code listing
+    \begin{lstlisting}[language=yaml, caption={Example YAML Configuration}]
+        database:
+            host: localhost
+            port: 5432
+            username: admin
+            password: secret
+
+        features:
+            logging: true
+            cache: false
+
+        servers:
+            - app01.example.com
+            - app02.example.com
+    \end{lstlisting}
+
+    \subsection{ReplicatSets}
+
+    \subsubsection{Replication Controller}
+    The replication controller helps us run multiple instances of a single pod in the Kubernetes cluster allowing for High Availability.
+    This can be done with a single pod. The replication controller can help by automatically brinign up a new pid when the existing one failes.
+    The replication controller ensures that hte specified number of pods are running at all times.
+
+    Another reason we need replication controllers is to create multiple pods to share the load across them.
+%   TODO the replication controller
+
+    The repilcation controller allows us to create mutiple piods to share the load across them.
+    The replication controller spands across multiple notes in the cluster.
+    It allows for the application to be scaled when the demand increases.
+
+    Note: there are two similar terms. Replications Controller and Replica Set.
+    Both have the same purpose, but they are not the same.
+    Replication controller is the older technology that is being replaced by the replicat set.
+
+    Replicat set is the new reccomended way to set up replication.
+    There are minor differences in the way each works.
+
+    \subsubsection{How to create a replication controller}
+    Start by creating a rc-definition.yml YAML file.
+    This will have the standard info as any Kubnernetes file. API, version, kind, metadata and spec.
+    The API version is specific to what we are creating.
+    The kind is set to replication controller
+    Add a name under metadata
+    Add labels and assign values.
+%    TODO add example
+    Add the spec to the YAML. The spec defines what is inside the object we are creating.
+    Create a template section under the pod template to be used by the replication controller to create replicas.
+
+    How is the pod template defined?
+    Use pod definition file metadata.
+
+
+    \begin{lstlisting}[language=yaml, caption={Replication controller}]
+        apiVersion: v1
+        kind: ReplicationController
+        metadata:
+            name: myapp-rc
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metedata:
+                    name: myapp-pod
+                    labels:
+                        app: myapp
+                        type: front-end
+            spec:
+                container:
+                    - name: nginx-container
+                      image: nginx
+        replicas: 3
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f rc-definition.yml
+        kubectl get replicationcontroller
+        kubectl get pods
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: apps/v1
+        kind: ReplicationSet
+        metadata:
+            name: myapp-replicaset
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metedata:
+                    name: myapp-pod
+                    labels:
+                        app: myapp
+                        type: front-end
+            spec:
+                container:
+                    - name: nginx-container
+                      image: nginx
+        replicas: 3
+        selector:
+            matchLabels:
+                type: front-end
+    \end{lstlisting}
+
+    The selector section helps the replica set identify what pods fall under it.
+    Replica sets can also manage pods that were no created as a part of the replica set creation.
+    Example, pods created before the creation of the replica sets that match the labels specified in the selector.
+    The replicaset will also take those pods into consideration when creating the replicas.
+
+    The selector is one of the major differences between replication controller and replica set.
+    The selector is not a required field in case of a replication controller, but it is still available.
+
+    Match label selector simply matches the labels specified under it to the labels on the pods.
+
+    \subsubsection{Labels and selectors}
+    Uses of replica sets. Use them to monitor existing pods if they have already been created.
+
+    The role of the the replica set is to monitor the piods and if any of them were to fail, deploy new ones.
+    The replica set is a process that monitors the pods.
+
+    Labelling the pods is handy since we can now use these as a filter for replica set under the selector section, we use the match labels filter and provide the same filter we used while creating the pods.
+
+    \subsubsection{Scaling with a replica set}
+    One way is to update the number of replicas in the definition file to six replicas the run kubectls apply command to sspecifiy the same file using the f parameter and the will update the replica set to have six replicas.
+
+    Another way is to run the kube control scal command. Use the replicas parameter to provide the number of replicas and specify the same file as input.
+    - You can either input the definition file or provide the replica set name in the type name format. However, remember that using hte file name as input will not result in the number of replicas being updated automatically in the file.
+    --- In other words the number of replicas in the replica set definition fil will still be three, even through via this command it was scaled to siz.
+
+    There also options available for automatically scaling the replica set based on load, but that is an advanced topic.....
+
+%    TODO add command review.
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f replicaset-defintion.yml
+        kubectl get replicaset
+        kubectl delete replicaset myapp-replicaset
+        kubectl replace -f replicaset-defintion.yml
+        kubectl scale -replicas=6 -f replicaset-definition.yml
+    \end{lstlisting}
+
+    \subsubsection{Deployment}
+    Each container is encapsulated inside a pod.
+    Multiple pods are deployed using replication controllers or replica sets.
+
+%    TODO diagram
+    Higher in the hierarchy of Kubernetes, above replica sets is deployments
+
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-replicaset
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metedata:
+                    name: myapp-pod
+                    labels:
+                        app: myapp
+                        type: front-end
+            spec:
+                container:
+                    - name: nginx-container
+                      image: nginx
+        replicas: 3
+        selector:
+            matchLabels:
+                type: front-end
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f deployment-defintion.yml
+        kubectl get deployments
+        kubectl get replicasets
+        kubectl get pods
+        kubectl get all
+    \end{lstlisting}
+
+    \subsubsection{Namespaces}
+
+    \subsubsection{Kubectl Explain Command}
+    Pods, deployments and clusters are deployed within a namespace.
+
+    Kubernetes creates a default namespace when the cluster is setup and these are created under a namespace called kubesystem.
+    The kube-public namespace is where resource that should be made available to all users are created.
+
+    When a kubernetes cluster grows to production/enterprise level you will want to consider using namespaces.
+
+    You can create your own namespaces as well.
+    Example, if you want to use the same cluster for both dev and production environments but at the same time isolate the rousources ebtween them.
+    You can create a different namespace for each of them.
+
+    That way while working in the dev environment, you don't accidentally modify resources in production.
+
+    Each of these namespaces can hav its own set of policies that define who can do what.
+
+    You can also assign a quota of resources to each of these namespaces.
+    That way, each namespace is guaranteed a certain amount and does not use more that its allowed limit.
+
+    Resources within a default namespace can refer to each other by their names.
+
+    You can make sure that the pod gets created into the development environment all the time by moving the namepsace intot hte pod definitno file.
+
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: apps/v1
+        kind: Deployment
+
+        metadata:
+            name: myapp-pod
+            namespace: dev
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            containers:
+            - name: niginx-container
+              image: nginx
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl get pods
+        kubectl get pods --namespace=kube-system
+
+        kubectl create -f pod-definition.yml
+        kubectl create -f pod-definition.yml --namespace=dev
+    \end{lstlisting}
+
+    \subsubsection{Create Namespace}
+
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: apps/v1
+        kind: Namespace
+        metadata:
+            name: dev
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f namespace-dev.yml
+        kubectl create namespace dev
+        kubectl get pods --namepsace=dev
+        #Used to change context for namespace command
+        kubectl config set-context $(kubectl config current-context) --namespace=dev
+
+        kubectl get pods
+        kubectl get pods --namespace=default
+        kubectl get pods --namespace=prod
+
+        # view pods in all namespaces
+        kubectl get pods --all-namespaces
+    \end{lstlisting}
+
+    \subsubsection{Resource Quota}
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: v1
+        kind: ResourceQuota
+        metadata:
+            name: compute-quota
+            namespace: dev
+
+        spec:
+            hard:
+                pods: "10"
+                request.cpu: "4"
+                requests.memory: 5Gi
+                limits.cpu: "10"
+                limits.memory: 10Gi
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f compute-quota.yaml
+    \end{lstlisting}
+
+    \subsubsection{Services}
+    Kubernetes services enable communication between various components within and outside of the application.
+    These services help connect application together with other applicaitons or users.
+
+    Example to consider. Application has a group of pods running variaous sections such as group for running back end processes, a group for frontend services and a gruop connecting to an external data source.
+
+    Services enabled the front end applicaiton to made avaiable to end users to end users.
+    It helps communication between backend and fronend pods and helps in establishing connectivity to an external data source.
+
+    Services snable loose coupling between microservices in out application.
+
+    A kubernetes service is an object just like pods, replica sets or deployments that we worked with before.
+    One of its use cases is to listen to a port on the node and forward requests on that port to a port on the pod running the web application.
+
+    This type of service is known as a node port services, because the service listens to a port on the node and forwards the request to the pods.
+
+    \subsubsection{Service Types}
+    There are different types of services.
+
+    The first type is the node port where the service makes an internal port accessible on a port on the node.
+
+    The second is cluster IP and in this case the service creates a virtual IP inside the cluster to enable communication between different services, such as a set of front end servers and a set of backend servers.
+
+    The third type is a load balancer, where it provisions a load balancer for our applicaiton in supported cloud providers.
+
+    \subsubsection{Node Port}
+%    TODO see diagram.
+    There are three ports involved.
+    The port on the pod where the actual web server is running. This is referred to as the target port because that is where the service forwards the request.
+    The second port is the port on the service. Referred to as the port. This service is in fact like a virtual server inside the node, inside the cluster.
+    It has its own IP address and that IP address is called the cluster IP of the service.
+    Finally, we have the port on the node itself which we can use to access the web server externally.
+    -> this is known as the node port.
+    Node ports can only be in a valid range which is by default from 30,000 to 32,767.
+
+    \subsubsection{How to create a service}
+    Use a definition file to create a service. The high level structure of the file remains the same as before.
+
+    \begin{lstlisting}[language=yaml, caption={Replication Set}]
+        apiVersion: v1
+        kind: Service
+        metadata:
+            name: myapp-service
+
+        spec:
+            type: NodePort
+            ports:
+                - targetPort: 80 #Note that this is an array - you can have multiple port mappings in a single service
+                  port: 80 #Out of all of these this is the mandatory port
+                  nodePort: 30008
+            selector: # Use to identify the pod
+                app: myapp
+                type: front-end
+    \end{lstlisting}
+
+    If you don't provide a target port, it is assumed to be the same as port.
+    Also, if you don't provide a node port, a free port in the valid range between 30,000 and 32,767 is automatically allocated.
+
+    \begin{lstlisting}[language=terminal,caption={Pod commands}]
+        kubectl create -f service-definition.yml
+        kubectl get services
+        # We can now this port to access the web service using Curl or a web browser
+        curl http://192:168.1.2:30008
+    \end{lstlisting}
+
+%    TODO multiple pods diagram wihtin a cluster
+    Requests are randomly routed to pods....
+    The service acts as a built-in load balancer to distribute load across different pods
+
+%    TODO - diagram about when pods are distribted across multiple nodes.
+    In this case we have web applications in pods on separate nodes in a cluster.
+    Kubenetes creates a service which spans all the nodess in the cluster.
+
+    They can be accessed using curl with the correct IP address and port.
+
+    To summarise in either case the service is created exactly the ame without having to do any additional steps during hte service creation.
+
+    When pods are removed or added, the service is automatically updated, making it highly flexible and adaptive.
+    Once created, you won't typically have to make any additional configuration changes.
+
+    \subsubsection{Services - Cluster IP}
+
+    A full stack web application typically has different kinds of pods hosting different parts of an appl,.ication.
+    You may have a number of pods running a frontend web server, another set of pods running a backend server, a set of pods running a key value store like reddis etc.
+
+    They will need to communicate with each other.
+
+%     TODO add diagram
+    What is the right way for them to communicate?
+
+    The pods all have an IP address assigned to them but these IPS as we know are not static.
+    These pods can go down any time and new pods are created all the time.
+
+    You cannot rely on these IP address for internal communication between the application.
+
+    A Kubernetes service can help us group the pods toghether and provide a single interface to acces the pods in the group.
+
+    Example:
+    A service created for the backend pods will help group all the backend pods together andd provide a single interface for other pods to access this service.
+    The requests are forwarded to one of the pods under ther service randomlyu.
+
+    Similary create additional service for readings and allow the backend pods to access th reading systems through the service.
+
+    This enables us to easily and effectively deploy a microservices based application on Kubernetes cluster.
+
+    Each layer can now scale or move as required without impacting communication between various services.
+
+    Each service gets an IP and name assigned to it inside the cluster and that is the name that should be used by other paths to access the service.
+
+    This type of service is known as the cluster UIIP
+
+    \begin{lstlisting}[language=yaml, caption={Cluster IP service definition}]
+        apiVersion: v1
+        kind: Service
+        metadata:
+            name: back-end
+        spec:
+            type: ClusterIP # This is default
+            ports:
+              - targetPort: 80 # Where the backend is exposed
+                port: 80 # Where the service is exposed
+            selector: # To Link a service to a set of ports
+                app: myapp
+                type: back-end
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Commands}]
+        kubectl create -f service-definition.yml
+        kubectl get services
+    \end{lstlisting}
+
+    \subsubsection{Kubectl Command}
+    SEE DOCS kubectl cheat sheet and kubectl overview
+
+    \begin{lstlisting}[language=terminal,caption={Commands}]
+        kubectl api-resources
+        kubectl explain pods #top level
+        kubectl explain pods --recursive # Easier to create YAML files out of this
+    \end{lstlisting}
+
 
     \chapter{Configuration}
 
+
+    \section{Define build and modify container images}
+
+
+    \section{Commands and Arguments in Docker}
+
+
+    \section{Commands and Arguments in Kubenetes}
+
+
+    \section{Envrinoment Variable}
+
+
+    \section{ConfigMaps}
+
+
+    \section{Secrets}
+
+
+    \section{Pre-requesite - Security in Docker}
+
+
+    \section{Security Contexts}
+
+
     \chapter{Multi-Container Pods}
+
 
     \chapter{Observability}
 
-    \chapter{POD Design}
+
+    \chapter{Pod Design}
+
 
     \chapter{Services and Networking}
 
+
     \chapter{State Persistence}
+
 
     \chapter{Security}
 
+
     \chapter{Helm Fundementals}
+
 
     \chapter{Kustomize}
 

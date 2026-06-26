@@ -16,11 +16,11 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\@writefile{toc}{\contentsline {chapter}{\numberline {1}Notes info }{5}{chapter.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Notes info and Introduction}{5}{chapter.1}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {paragraph}{Purpose of notes}{5}{section*.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {2}Introduction}{7}{chapter.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Core Concepts}{7}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {2.1}Kubernetes Architecture}{7}{section.2.1}\protected@file@percent }
@@ -37,34 +37,82 @@
 \@writefile{toc}{\contentsline {subsubsection}{}{8}{section*.12}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{Kube command line or kubectl or kube control}{8}{section*.13}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {2.2}Docker-vs-ContainerD}{9}{section.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {chapter}{\numberline {3}Core Concepts}{11}{chapter.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{CLI - ctr}{9}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{CLI - nerdctl}{9}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{CLI-crictl}{9}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Pods}{9}{section.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Muti-Container Pods}{10}{subsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}YAML Basics}{10}{section.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Pods with YAML}{10}{section.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}YAML in Kubernetes}{10}{subsection.2.5.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.1}Pod commands}{10}{lstlisting.2.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.2}Example YAML Configuration}{10}{lstlisting.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}ReplicatSets}{11}{subsection.2.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Replication Controller}{11}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{How to create a replication controller}{11}{section*.18}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.3}Replication controller}{11}{lstlisting.2.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.4}Pod commands}{11}{lstlisting.2.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.5}Replication Set}{12}{lstlisting.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Labels and selectors}{12}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Scaling with a replica set}{12}{section*.20}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.6}Pod commands}{13}{lstlisting.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Deployment}{13}{section*.21}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.7}Replication Set}{13}{lstlisting.2.7}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.8}Pod commands}{13}{lstlisting.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Namespaces}{14}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Kubectl Explain Command}{14}{section*.23}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.9}Replication Set}{14}{lstlisting.2.9}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.10}Pod commands}{14}{lstlisting.2.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Create Namespace}{14}{section*.24}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.11}Replication Set}{14}{lstlisting.2.11}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.12}Pod commands}{15}{lstlisting.2.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Resource Quota}{15}{section*.25}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.13}Replication Set}{15}{lstlisting.2.13}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.14}Pod commands}{15}{lstlisting.2.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Services}{15}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Service Types}{16}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Node Port}{16}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{How to create a service}{16}{section*.29}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.15}Replication Set}{16}{lstlisting.2.15}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.16}Pod commands}{17}{lstlisting.2.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Services - Cluster IP}{17}{section*.30}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.17}Cluster IP service definition}{17}{lstlisting.2.17}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.18}Commands}{18}{lstlisting.2.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Kubectl Command}{18}{section*.31}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.19}Commands}{18}{lstlisting.2.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Configuration}{19}{chapter.3}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Configuration}{13}{chapter.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Define build and modify container images}{19}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Commands and Arguments in Docker}{19}{section.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Commands and Arguments in Kubenetes}{19}{section.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Envrinoment Variable}{19}{section.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}ConfigMaps}{19}{section.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.6}Secrets}{19}{section.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.7}Pre-requesite - Security in Docker}{19}{section.3.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.8}Security Contexts}{19}{section.3.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Multi-Container Pods}{21}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Multi-Container Pods}{15}{chapter.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Observability}{23}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Observability}{17}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Pod Design}{25}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}POD Design}{19}{chapter.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Services and Networking}{27}{chapter.7}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {8}Services and Networking}{21}{chapter.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}State Persistence}{29}{chapter.8}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {9}State Persistence}{23}{chapter.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Security}{31}{chapter.9}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {10}Security}{25}{chapter.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {10}Helm Fundementals}{33}{chapter.10}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {11}Helm Fundementals}{27}{chapter.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {11}Kustomize}{35}{chapter.11}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {12}Kustomize}{29}{chapter.12}\protected@file@percent }
-\@writefile{lof}{\addvspace {10\p@ }}
-\@writefile{lot}{\addvspace {10\p@ }}
-\gdef \@abspage@last{29}
+\gdef \@abspage@last{35}
