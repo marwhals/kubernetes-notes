@@ -32,6 +32,8 @@
 \usepackage{tikzexternal}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{arydshln}
+\usepackage{arydshln}
 
 % Define YAML language
 \lstdefinelanguage{yaml}{
@@ -703,106 +705,1091 @@
 
 
     \section{Define build and modify container images}
+    Why create your own image?
+    BEcause you cannot find a component or a service that you want to use as a part of your application on Docker Hub already
+    or your team decided that you're development will be dockerized for ease of shipping and deployment.
+
+    \subsubsection{How to create my own image?}
+    First we need understand what we are containerizing or what application we are creating and imasge ofr and how the appliicaiton is built.
+    Start by thinking if you want to deploy the application manually.
+
+    \begin{itemize}
+        \item OS - Ubuntu
+        \item Update apt repo
+        \item Install dependencies using apt
+        \item Install Python dependencies using pip
+        \item Copy source code to /opt folder
+        \item Run the web server using "flask" command
+    \end{itemize}
+
+    \begin{lstlisting}[language=yaml, caption={Example docker file}]
+        FROM Ubuntu # Base OS or another image
+
+        RUN api-get update # Install all dependencies
+        RUN apt-get install python
+
+        RUN pip install flask
+        RUN pip install flask-mysql
+
+        COPY . /opt/source-code # Copy source code to a location
+
+        ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run # Specify Entrypoint - specify a command that will be run when the image is run as a container
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal,caption={Commands}]
+        docker build Dockerfile -t username/my-custom-app # The above command will create an image locally on the system.
+        docker push username/my-custom-app #This makes the image available on the local docker hub
+    \end{lstlisting}
+
+    \subsubsection{Dockerfile}
+    A docker file is a text file written in a specifc format.
+    <Instruction> <Argument>
+
+    Each of these instruct docker to perform a specific file while creating the image.
+
+    When docker builds the images it builds this in a layered architecture.
+    Each line of instruction creates a new layer in the docker image with just the changes from the previous layer.
+
+    When running the "docker build ." command you can see the various steps involved and the result of each task.
+    A docker build can be restarted from a step incase a step fails or if you were to add new steps in the build process you wouldn't have to start again.
+    Previous layers are reused from a cache.
+
+    This helpful especially when you update source of your application, as it may change more frequently.
+    Only layers above the updated layers needs to be rebuilt.
+
+    Everything can be containerized including browsers like firefox etc and utilities like curl.
 
 
     \section{Commands and Arguments in Docker}
+    note: not required for cert but useful in usage
+
+    Unlike virtual machine, containers are no meant to host an operating system
+    Containers are meant to run a specific task or process, such as to host an instance of a web server, or application server or a database.
+    Or simply to carry out some kind of computation or analysis.
+
+    Once the task is complete the container exits.
+    A container only lives as long as the process inside it is alive.
+
+    If the web service inside the container is stopped or crashses the container exists.
+
+    Command line arguments can be appended to the entry point.
 
 
     \section{Commands and Arguments in Kubenetes}
 
+    \begin{lstlisting}[language=yaml, caption={Cluster IP service definition}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: ubuntu-sleeper-pod
+        spec:
+            containers:
+                - name: ubuntu-sleeper
+                  image: ubuntu-sleeper
+                  command: ["sleep.2.0"] # Corresponds to entry point in docker file
+                  args: ["10"] # Corresponds to CMD in docker file
+    \end{lstlisting}
+%    TODO see note
 
-    \section{Envrinoment Variable}
+    \begin{lstlisting}[language=terminal,caption={Commands}]
+        docker run -r APP_COLOR=pink simple-webapp-color
+    \end{lstlisting}
+
+
+    \section{Envrinoment Variables}
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: simple-webapp-color
+        spec:
+            container:
+            - name: simple-webapp_colo
+            image: simple-webapp-color
+            ports:
+            - containerPort: 8080
+            env: # These are plain key values
+            - name: APP_COLOR
+            value: pink
+    \end{lstlisting}
+
+    There are other ways of setting these environment values. Plain key values and secrets
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        env:
+            - name: APP_COLOR # Config map
+            valueForm:
+                configMapKeyRef:
+
+        ////////
+        env: # Secrets
+            - name: APP_COLOR
+            valueFrom:
+                secretKeyRef:
+
+    \end{lstlisting}
 
 
     \section{ConfigMaps}
 
+    used to manage environment variable centrally
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion: v1
+        kind: pod
+        metadata:
+            name: simple-webapp-color
+        spec:
+            containers:
+            - name: simple-webapp-color
+            image: simple-webapp-color
+            ports:
+                - containerPort: 8080
+            envFrom:
+                - configMapRef:
+                    name: app-config
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        APP_COLOR: blue
+        APP_MODE: prod
+    \end{lstlisting}
+
+    Create the ConfigMap
+    Inject the confifg map into the pod
+
+    There are two ways of creating a config map.
+
+    The impoerative way without using a config map definition file - kubectl create configmap
+    The declarative way by using a config map definition file.
+
+    If you don't wise to create a config map definition file, you just use the Kubectl control command
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        kubectl create configmap <config-name> \
+            --from-literal=APP_COLOR=blue \
+            --from-literal=APP_MOD=prod
+    \end{lstlisting}
+
+    --- using a path to file
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        kubectl create configmap <config-name> \
+            --from-file=<path-to-file>
+    \end{lstlisting}
+
+    \subsubsection{Using declarative approach}
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        kubectl create -f
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+            name: app-config
+        data:
+            APP_COLOR: blue
+            APP_MODE: prod
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        kubectl create -f config-map.yml
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Viewing config maps}]
+        kubectl get configmaps
+        kubectl describe configmaps
+    \end{lstlisting}
+
+    \subsubsection{Example}
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+            name: app-config
+        data:
+            APP_COLOR: blue
+            APP_MODE: prod
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: simple-webapp-color
+        spec:
+            containers:
+            - name: simple-webapp-color
+            image: simple-webapp-color
+            ports:
+                - containerPort: 8080
+            envFrom:
+                - configMapRef:
+                    name: app-config
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Viewing config maps}]
+        kubectl create -f pod-definition.yaml
+    \end{lstlisting}
+
 
     \section{Secrets}
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        import os
+        from flask import Flask
+
+        app = Flask(__name__)
+
+        @app.route("/")
+        def main():
+            mysql.connector.connect(host='mysql', database='mysql', user='root', password='paswrd')
+            return render_template('hello.html', color=fetchcolor())
+
+        if __name__ = "__main__":
+            app.run(host="0.0.0.0", port="8080")
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion:
+        kind: ConfigMap
+        metadata:
+            name: app-config
+        data:
+            DB_Host: mysql
+            DB_User: root
+            DB_Password: paswrd
+    \end{lstlisting}
+
+    Note the hardcoded values. This is bad.
+    Can store this in a Config.
+    Use secrets to store this sensitive information.
+    Similar to config maps except that they are stored in an encoded or hashed format
+
+    Two steps when working wtih secrets
+    - Create the secrets
+    - Inject into the pod
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        DB_Host: mysql
+        DB_User: root
+        DB_Password: paswrd
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Imperative creation}]
+        kubectl create secret generic
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Declarative creation}]
+        kubectl create -f
+    \end{lstlisting}
+
+%    TODO see example of imperative command
+
+%    TODO see example of Declarative command
+
+    \begin{lstlisting}[language=yaml, caption={Declarative creation}]
+        kubectl create -f
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+        apiVersion:
+        kind: Secret
+        metadata:
+            name: app-secret
+        data:
+            DB_Host: mysql #This is plain text. Data must be specified in an encoded form
+            DB_User: root
+            DB_Password: paswrd
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Declarative creation}]
+        kubectl create -f secret-data.yaml
+    \end{lstlisting}
+
+    \subsubsection{Encoding Secrets}
+
+    \begin{lstlisting}[language=yaml, caption={Example pod definition file with yml}]
+            DB_Host: mysql #This is plain text. Data must be specified in an encoded form
+            DB_User: root
+            DB_Password: paswrd
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Declarative creation}]
+        echo -n 'mysql' | base64
+        echo -n 'root' | base64
+        echo -n 'paswrd' | base64
+
+        kubectl get secrets # view secrets
+        kubectl describe secrets
+        kubectl get secret app-secret -o yaml
+
+        echo -n 'mysql' | base64 --decode
+        echo -n 'root' | base64 --decode
+        echo -n 'paswrd' | base64 --decode
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={pod-definition.yml}]
+        apiVersion: v1
+        kind: pod
+        metadata:
+            name: simple-webapp-color
+        labels:
+            name: simple-webapp-color
+        spec:
+            containers:
+            -name: simple-webapp-color
+            image: simple-webapp-color
+            ports:
+            - containerPort: 8080
+            envFrom:
+            - secretRef:
+                name: app-secret
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={secret-data.yaml}]
+        apiVersion: v1
+        kind: Secret
+        metadata:
+            name: app-secret
+        data:
+            DB_host: ewafe-
+            DB_User: ;afweohiu
+            DB_Password: ;oiuhj
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Declarative creation}]
+        kubectl create -f pod-definition.yaml
+    \end{lstlisting}
+
+    There are other ways to inject secrets into pods.
+    You can inject single environment variables or inject the whole secret as files in a volume.
+
+    If you were to mount the secret as a volume in the pod, each attribute in the secret is created as a file with the value of the secret as its content.
+
+    \begin{lstlisting}[language=yaml, caption={secret-data.yaml}]
+        volumes:
+        - name: app-secret-volumes
+        secret:
+            secretName: app-secret
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Commands to run from within the container}]
+        ls /opt/app-secret-volumes
+        cat /opt/app-secret-volumes/DB_Password
+    \end{lstlisting}
+
+    If you were to mount the secret as a volume in the pod, each attributed in the secret is created a separate file with the value of the secret as its content.
 
 
-    \section{Pre-requesite - Security in Docker}
+    \section{Pre-requesite for Kubernetes - Security in Docker}
+    Consider a host with Docker installed on it.
+    This host has a set of its own processes running such as a number of operating system processes, the docker daemon itself, the SSH server, etc.
+    %See diagram
+
+    Unlike virtual machines containers are no completely isolated from their host containers and the hosts share the same kernel.
+
+    Containers are isolated using namespaces.
+
+    In Linux, the host has a namespace and the containers hvae their own namepsace.
+    All the processes run by the containers are in fact run on the host itself, but in their own namespace.
+
+    As fare as the Docker container is concerned, it is in its own namespace and it can see its own processes only.
+    --> If cannot see anything outside of it or in any other namespace.
+
+    For the Docker host, all processes of its own, as well as those in the child namespaces are visiable as just another process in the system.
+
+    When you list the procfefss on the host, you see a list of processes.
+    ---> Profcsess can have different process IDs in different namespaces.
+    ---> Thats how Docker isolates containers within a system.
+
+    That is process isolation.
+
+    \subsubsection{Users in the context of security}
+    The docker host has a set of users, a root user as well as a number of non-root users.
+    By default, Docker runs processes within containers as the roots user.
+    The prrocess is run as the root users.
+    This can be seen via commands both inside the container and outside the container.
+
+    If you do not want the process within the container to run as the root user, you may set the users using the user option within the docker run command and specify the new user ID
+    ---- The process now runs with the new user ID.
+
+    Another way to enforce user security is to have thiss defined in the Docker image itselfl at the time of creation.
+
+    \subsubsection{Root user}
+    Docker implements a set of security features that limits the abilities of the root user within the container.
+    So the root user within the container isn't really like the root user on the host.
+    Docker uses Linux capabilities to implement this.
+    Note: Root users can literally do anything, as can a process run by the root users.
+    It has unrestricted access to the system from modifying files and permissions on files, access controller, creating or killing processes, setting group ID or user ID
+    --> Performing networrk related operations such as binding to network ports, broadcasting on a network, controlling network port system related operations like rebooting the host, manipulating the system clock and others.
+
+    All of these are the different capabilities on a Linux system and you can see a full list of this at this location.
+    /usr/include/linux/capability.h
+
+    You can contorl and limit what capabilities are made avaiable to a user.
+    By default, Docker runs a container with a limited set of capabilities and so the processes running within the container do not have the privilleges to reboot the host or perform other operations that can disruipt the host or other containers runnign on the same host.
+
+    If you wish to voerride this behaviour and provide additional privilges that what is avaialbe you can use
+
+    \begin{lstlisting}[language=terminal,caption={Commands}]
+        docker run --cap-add MAC_ADMIN ubuntu
+        docker run --cap-drop KILL # drop privilleges
+        docker run --privileged #Run a container with all privilleges enabled
+    \end{lstlisting}
 
 
     \section{Security Contexts}
+    In Kubenerntes containers are encapsulated in pods. You may choose to confgiure the securtiy settings at a container level or at a pod level.
+    If you configure it as both the pod and the container level the settings on the container will override the settings on the pod.
+
+    \begin{lstlisting}[language=yaml, caption={secret-data.yaml}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: web-pod
+        spec:
+            securityContext:
+                runAsUser: 1000 # Pod level user id
+            containers:
+                - name: ubuntu
+                image: ubuntu
+                command: ["woop", "3768"]
+                securityContext:
+                    runAsUser: 1000 # Container level user id security
+                    capabilities:
+                        add: ["MAX_ADMIN"] #Specify a list of capabilities to add to the pod. ---- Note capabilities are only suported at the container level and not at the POD level.
+    \end{lstlisting}
 
 
-    \chapter{Multi-Container Pods}
+    \section{Resource Requirements}
+%TODO see diagram
+    Each node has a set of CPU and memory resource available.
+    Every pod requried a set of resources to run.
+    Whenever a pod is placed on a node, it consumes the resources available on that node.
+    It is the Kubernetes Scheduler that decided which node a pod goes to.
+    The scheduler takes into consideration the amount of resources requried by a pod and those available on the nodes.
+    It identifies the best node to place a pod on.
+
+    If node have no sufficicent resources available. The scehduler avoids placing the pod on those nodes.
+    Instead places the pod on the one where sufficient resources are available.
+    If there are no sufficient resource availalbe on any of the nodes then the scehduler holds back, scheduling the pod and you will see the pod in a pending state.
+
+    If you look at the events using the kube control describe pod command you will see that there is an insufficient CPU command.
+
+    You can specify the amoutn of CPU and memeory required for a pod when creating one.
+    This is known as the resource request for a container.
+
+    When the scheduler tries to place the pod on a node, it uses these number to identify a node which has sufficent amount of reosources availalbe.
+
+    \subsubsection{Example Yaml with resource request}
+    \begin{lstlisting}[language=yaml, caption={pod-definition.yaml}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: simple-webapp-color
+            labels:
+                name: simple-webapp-color
+        spec:
+            containers:
+            - name: simple-webapp-color
+              image: simple-webapp-color
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                    memory: "4gi"
+                    cpu: 2
+    \end{lstlisting}
+
+    When the scheduler gets a request to place this pod, it looks for a node that has this amount of resources available.
+    And when the pod gets placed on a node, the pod gets a guaranteed amount of resources available for \textbf{it}
+
+    What does one count of CPU really mean?
+    0.1 can be expressed as 100M where m standard for Milli
+    you can go as low as 1milli
+
+    1 count of CPU is equivalent to 1 AWS vCPU , 1 GCP core, 1 Azure Core, 1 Hyperthread <----
+
+    Can request a higher levle of CPU provded that youru nodes are sufficiently funded.
+
+    Similarly you can specify the memeory using the Mi siffix ro specify the memeory using the exact amount....
+
+    1G - base 10
+    1Gi - base 2
+
+    A container has no limit to the amount of resources it can consumer on a node.
+    It can start with on CPU and consumer as many resources as it requires and that can suffocate the native process on the node or other containerss or resources.
+    You can set a limit of the resource usage on these pods.
+    You can limit it to 1 vCPU or limit it to 512 Mi
+
+    \begin{lstlisting}[language=yaml, caption={pod-definition.yaml}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: simple-webapp-color
+            labels:
+                name: simple-webapp-color
+        spec:
+            containers:
+            - name: simple-webapp-color
+              image: simple-webapp-color
+              ports:
+                - containerPort: 8080
+              resources:
+                requests:
+                    memory: "4gi"
+                    cpu: 2
+                limits: # Resources limit
+                    memory: "2Gi"
+                    cpu: 2
+    \end{lstlisting}
+
+    Now when the pod is created, Kubernetes sets new limits for the container.
+    Rememeber that the limits and reqeusts are set for each container within a pod.
+    If there are multiple containers, then each container can have a request or limited set of its own.
+
+    What happends when a pod tries to exceed the reousrces beyond its specified limit?
+    In case of the CPU, the system throttles the CPU so that it does not go beyone the specified limit.
+    A container cannot use more CPU resources that its limit.
+
+    --> This is not hte case with memeory.
+    A container can use more memory reousrces that its limit, so it if a pod tries to consumer moremorry that its limit constanfly.
+    --> The pod will be terminated and you will seet that with the pod terminated command with an error in the logs.
+    --> can also be ssen in the outpout of the describe command when you run it
+
+    OOM - referes to an out of memory container kill.
+
+    By default kubernetest does not have a CPU or a memeory request or limit set.
+    This means that any pod can consume as much resource s as required on any node and suffocate other popds or porecess that are running on the node, of resources.
+    This is important to not.
+
+    Examples scenario: %TODO see diagrams
+    Say there are two pods competing for CPU reousrces on the cluster. POD/Container.
+    Withouth a resource or limit set, one pod can consume all the CPU resources on the node and prevent the second part of the required reousrces.
+
+    Can set limits to prevent users from misusing the infrastructure.
+
+    Need make sure that pods have request set because that is the only way to guarantee resources.
+
+    For memeory it is quite similar. %TODO see diagrams
+    Unlike memeory we cannot throttle it. Once memory is assigned the only way to free it is to kill it.
+
+    \subsubsection{Limit Ranges}
+    Limit ranges can help you define default values to be set for containers in pods that are created withouth a request or limit specified in the Pod definitino files.
+    This is applicable at the namespace level.
+
+    \begin{lstlisting}[language=yaml, caption={Limit range example}]
+        apiVersion: v1
+        kind: LimitRange
+        metadata:
+            name: cpu-resource-constraint
+        spec:
+            limits:
+            - default:
+                cpu: 500m
+              defaultRequest:
+                cpu: 500m
+              max:
+                cpu: "1"
+              min:
+                cpu: 100m
+              type: Container
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Limit range example}]
+        apiVersion: v1
+        kind: LimitRange
+        metadata:
+            name: memory-resource-constraint
+        spec:
+            limits:
+            - default:
+                cpu: 1Gi
+              defaultRequest:
+                cpu: 1Gi
+              max:
+                cpu: 1Gi
+              min:
+                cpu: 500Mi
+              type: Container
+    \end{lstlisting}
+
+    These limits are enforced when a pod is created.
+    If you create or change a limit rang it does not affect existing pods.
+    It will only affect newer pods that are crated after the limit range is created or updated.
+
+    There is a way to restrict the total amount of resources that can be consumed by application in a Kubernetes cluster.
+    We can create quotas at a namespace level.
+    So a resource quota is a namepsace laveal object that can be created to set hard limits for requests and limits.
+
+    \begin{lstlisting}[language=yaml, caption={Limit range example}]
+        apiVersion: v1
+        kind: ResourceQuota
+        metadata:
+            name: my-resource-quota
+        spec:
+            hard:
+                request.cpu: 4
+                request.memory: 4Gi
+                limits.cpu: 10
+                limits.memory: 10Gi
+    \end{lstlisting}
+
+
+    \section{Service Account}
+
+    The concept of service accounts is related to other security-related concepts in Kubernetes such as authenatication authorization and RBAC etc.
+
+    There are two types of account in Kubernetes a user account and a service account.
+    The user account is used by humans and the service accounts are used by machines.
+
+    A user account could be for an administrator accessing the cluster to performa adminstrictive tasks, or a developer access the cluster to deploy applications etc.
+
+    A service account could be an account used by an appliaiotn to interact with the Kubernetes cluster.
+    E.g a monitoring application like Prometheus uses a service account to pull eht Kubernetes API for performance metrics.
+    An automated build tools like Jenkins uses service account to deploy applications oin the Kubernetes cluster.
+
+    \begin{lstlisting}[language=yaml, caption={Commands}]
+        kubectl create serviceaccount <NAME> # use the create a service account on the CMD
+        kubectl get serviceaccount # view service accounts
+
+        kubectl describe serviceaccount <NAME>
+    \end{lstlisting}
+
+    When the service account is created it also creates a token automaticlaly.
+    The service aaccount token is what must be used bby the external applications while authenaticcating to the Kubernetes API
+    The token however is stored as a secret object.
+
+    When a service account is created it first creates the service account objects, then it generateds a token for the service account.
+    It then creates a secret object and stores that token inside the secret objects.
+    The secret object is then linkedin to the service account.
+
+
+    To view the token, view the secret oibject by running...
+
+    \begin{lstlisting}[language=yaml, caption={Commands}]
+        kubectlr describe serviceaccount <NAME>
+    \end{lstlisting}
+
+    This token can then be used as an authentication bearer token while aking a REST call to the Kubernetest API
+
+    You can create a service account and assigne the write premission using role-based access contorl machanisms and export your service accout tokens
+    and use it to configure your thrid party application to authetniucat to the kubernetes API.
+
+    Consider if the third-party applicaitn is hosted on the Kuibernetest cluster itself?
+    In that case, this whole process of exporting the service account token and configuring the thrid party application to use it can be made simple by automatically moutning the service topken secret as a volume insde the pod hosting the thrid-party application m.
+    That way the token to acces the Kubernetes API is already placed inside the pod and can be easily read be the application.
+    yo don't have to probvide it manuyally.
+
+    For every namespace in Kubernetes, a service accoutn named default is automatically created.
+    Each namespace has its own default service account.
+    Whenever a pod is created the default service accounta nd its token are automatically mount to that pod as a volume mount.
+
+    The default service account has restricutions.
+    It only has the permission to run basic Kubernetest API queries.
+    To use a different service account, modify the pod defnition file to include a service accoutn field and specity the name of the new service account.
+    Note: You cannot edit the service account of an exdisting pod. You must delete and recreate the pod.
+
+
+    Incase of deployment, you will be able to edit the service account as any changes to the pod definition file will automatically trigger a new roll out for the deployment.
+    The deployment will take care of deleteing and reacreateing new pods with the right service account.
+
+    Kubernetes automatically mount the default service account if you haven't specified any.
+    You may choose not to mount a service account automatically by setting hte automaountServiceaccountToken field to fals int the pod section.
+
+    \subsubsection{Chanages in 1.22 and 1.24 of Kubernetes}
+    Every namespace has a default service account.
+    That service accoutn has a secret object with a token associate with it.
+    When a pod is created, it automatically associates the service account to the pod and mounts the token to a well-known location within the pod.
+
+    This makes the token accessible to a process that's running whithin the pod, and that enables the process to query the Kubernetes API.
+
+    Each JWT requires a separate secret objec tper service account, which results in scalability issues.
+    In version 1.22 the TokenRequestAPI was introduced as part of the Kubernetes Enhancement Proposal 12005 that aimed to introduce a mechanism for pvosiioning Kubernetest service account tokens that are more secure and scalable via n aAPI
+    Token generated by the token request PAI are audience boudn, they're time bound and object bound.
+
+    \paragraph{Changes in v1.24}
+    With version 1.24, a change was made where when you create a service account it no longer automatically creates a secret or a token access sercet.
+    You must run the command kubectl create token follwoed by the name ot he service account to generate a token for that service account if you needed one.
+
+    NOTE: see kubernetes service account secrtes
+
+
+    \section{Taints and Tolerations}
+
+    Taints and tolerations have nothing to do with security or intrusion on the cluster.
+    Taints and toleration are used to set restrictions on what pods cna be scehduled on a node.
+
+    Example:
+    Consider a cluster where a node contains dedicated resources.
+    We do not want the scehduler to put any pod on that node.
+    This can be acheived using a taint.
+    Pods have no tolerations by default, so they cannot tolerate any taint.
+
+    One half is tainting the node.
+    The other is specifying which pods are tolerant to the taint.
+
+    Taints are set on nodes.
+    Tolerations are set on pods.
+
+    \begin{lstlisting}[language=yaml, caption={Commands}]
+        kubectl taint nodes node-name key=value:taint-effect # taint effect defines what will happen to the pod if they do not tolerat the taint
+
+        kubectl taint nodes node1 app=myapp:NoSchedule
+    \end{lstlisting}
+
+    Three types of taint effect
+    \begin{itemize}
+        \item No scehdule, which mean the pods will not be schdedules on the node.
+        \item Preferred no scehdule, which means that the schdeuler/system will try to avoid placing a pod on the node but that is not guaranteed.
+        \item Thirs i no execute, which means that the new pods will not be scheduled on the node and existing pods on the node if any will be evicted if they do not tolerate the taint. These pods may hvae been scheduled on the node before the taint was applied to the node.
+    \end{itemize}
+
+    \subsubsection{Tolerations - Pods}
+
+    \begin{lstlisting}[language=yaml, caption={Limit range example}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: myapp-pod
+        spec:
+            containers:
+            - name: nginx-container
+              image: nginx
+            tolerations:
+            - key: "app"
+              operator: "Equal"
+              value: "blue"
+              effect: "NoSchedule"
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl taint nodes node1 app = blue : NoScehdule
+    \end{lstlisting}
+
+    When the pods are no created or updated with the new tolerations, they are either not schedules on nodes or eveicted from the exiting nodes depending on the effect set.
+
+    \subsubsection{No Execute taint effect}
+    If a pod does not have a tolerance it is evicted i.e killed.
+
+
+    Taints and tolerations do not tell a particular pod to go to a particular node.
+
+    Instead it tell the node to accept pods with certain tolerations.
+
+    If the requirement is to restrict a pod to certain nodes it is achieved through the concept of node affinity.
+
+    \subsubsection{Master nodes}
+    Taint is automatically applied on this node when the cluster is setup that prevent any pods from being scehduled on this node.
+    This behaviour can be modified if required but it is best practice not to deploy applicatn workloads on a master server.
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl describe node kubemaster | grep taint
+    \end{lstlisting}
+
+
+    \section{Node Selectors Logging}
+    %TODO see example
+    We can set a limitation on the pods so that they only runb on particular nodes.
+    There are two ways to do this.
+    The first is using node electores.
+    For this we look at the pod defintion file.
+
+    \begin{lstlisting}[language=yaml, caption={Node selector example}]
+        apiVersion:
+        kind: pod
+        metadata:
+            name: myapp-pod
+        spec:
+            containers:
+            - name: data-processor
+              image: data-processor
+            nodeSelector:
+                size: Large
+    \end{lstlisting}
+
+    Kubernetes nodes which nodes are which via key value pairs which are assigned to the node.
+    The scehduler uses the labesl to identify the right node.
+
+    To use laberls in a node elector like this, you must have first lableed your nodes prior to creating this pod.
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl label nodes <node-names> <label-key>=<label-value>
+
+        kubectl label nodes node-1 size=Large
+    \end{lstlisting}
+
+    Node slectors have limiteations.
+    Consider more complext requirements
+    Node selectors do not allow for more complex logic.
+    For more complextr logic node affinity and anti-affinity features were introduced.
+
+
+    \section{Node Affinity}
+    The primary purpose of node affinity feature si to ensure that pods are hosted on particular nodes.
+    This feature allows us with advanved capabilities to limit pod placement on specifi cnodes.
+
+    \begin{lstlisting}[language=yaml, caption={Node affinity example}]
+        apiVersion:
+        kind: pod
+        metadata:
+            name: myapp-pod
+        spec:
+            containers:
+            - name: data-processor
+              image: data-processor
+            affinity:
+                nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                        - matchExpressions:
+                          - key: Size
+                            operator: In #Can also use the noIn operator
+                            values: # A list of values
+                            - Large
+                            - Medium
+    \end{lstlisting}
+
+    Check documentation for other operators.
+
+    Consider if a node affinity could not match a node with a given expression.
+
+    \subsubsection{Node Affinity Types}
+    The type of node affinit defines the behaviour of the scheduler with respect to node affinity and the stages in the lifecycle of the pode.
+
+    There are current two types o node affinity availabled.
+
+    requiredDuringSchedulingIgnoredDuringExecutions
+    preferredDuringSchedulingIgnoredDuringExecution
+
+    There are two state in the life cycle of a pod when considering nod affinity during scheduling and during execution.
+
+    Consider that the nodes with matching labels no availble?
+    This is where they type of node affinity available comes into play.
+
+    If you slect the required type, which is the first one the scheduler will mandate that the pod be placed on a node with the given affinity reuls.
+    If it cannot find on the pod will no be scheduled.
+    This type will bes ued in casess where the placement of the pod is crrucial.
+    If a matrching node does no exist the pod will no be scheduled.
+\hline
+    What if the pod placement is less important then running the workload itself?
+    In that case you could set it to preferred.
+    And in cases where a matching node is not found the scheduler will simply ignore ignored node affinity rules and place the pod on any available node.
+
+    Effectively the scheduler will try bes to place the pod on a matching node but if non are available place it anywhere.
+\hline
+    The second part of the property or the other state is during execution.
+    During execution is the state where a pod has been running and a change is made in the environment that affers node affinity such as a change in the label of a node.
+
+    In the case what would happen to the pods is that value is set to ignored.
+    I.e this means pods will continue to run and any changes in the node affinity will not impact them once they are scheduled.
+
+    \section{Taints and Tolerations vs Node Affinity}
+    A combination of taints and tolerations an node affinityu rules can be used together to completely dediecate nodes for specifict pods.
+
+
+    \chapter{Multi-container pods}
+
 
     \section{Multi-container pods}
+
+
     \section{Multi-container pods design patterns}
+
+
     \section{Init containers}
 
 
     \chapter{Observability}
+
+
     \section{Readiness and Liveness Probes}
+
+
     \section{Liveness Probes}
+
+
     \section{Logging}
+
+
     \section{Monitor and Debug application}
-    
+
+
     \chapter{Pod Design}
+
+
     \section{Labels, Selectors and Annotations}
+
+
     \section{Rolling updates and Rollbacks in Deployments}
+
+
     \section{Updating a deployment}
+
+
     \section{Deployment strategy - Blue Green}
+
+
     \section{Deployment strategy - Canary}
+
+
     \section{Jobs}
+
+
     \section{CronJobs}
 
 
     \chapter{Services and Networking}
+
+
     \section{Network Policies}
+
+
     \section{Developing network policies}
+
+
     \section{Ingress networking}
 
+
     \chapter{State Persistence}
+
+
     \section{Introduction to Docker Storage}
+
+
     \section{Storage in Docker}
+
+
     \section{Volume Driver Plugins in Docker}
+
+
     \section{Volumes in Kubernetes}
+
+
     \section{Persistent Volumes}
+
+
     \section{Persistent volume claims}
+
+
     \section{Using PVCs in Pods}
+
+
     \section{Storage Classes}
+
+
     \section{Why Stateful Sets}
+
+
     \section{Sateful sets introduction}
+
+
     \section{Headless Services}
+
+
     \section{Storage in StatefulSets}
-    
+
+
     \chapter{Security}
+
+
     \section{Kubernetes Security Primitives}
+
+
     \section{Authentication}
+
+
     \section{KubeConfig}
+
+
     \section{API Groups}
+
+
     \section{Authorization}
+
+
     \section{Role based access controls}
+
+
     \section{Cluster Roles}
+
+
     \section{Admission Controllers}
+
+
     \section{Validating and Mutating Admission Controllers}
+
+
     \section{API Versions}
+
+
     \section{API Deprecations}
+
+
     \section{Custom Resource Definition}
+
+
     \section{Custom Controllers}
+
+
     \section{Operator Framework}
 
+
     \chapter{Helm Fundementals}
+
+
     \section{Helm Introduction}
+
+
     \section{Install Helm}
+
+
     \section{Helm concepts}
 
+
     \chapter{Kustomize}
+
+
     \section{Kustomize Problem Statement and Ideology}
+
+
     \section{Kustomize vs Helm}
+
+
     \section{Kustomization yaml file}
+
+
     \section{Kustomization Output}
+
+
     \section{Kustomization ApiVersion and Kind}
+
+
     \section{Managing Directories}
+
+
     \section{Common Transformers}
+
+
     \section{Image Transformers}
+
+
     \section{Patches Intro}
+
+
     \section{Different Types of Patches}
+
+
     \section{Patches Dictionary}
+
+
     \section{Patches list}
+
+
     \section{Overlays}
+
+
     \section{Components}
 
 \end{document}
