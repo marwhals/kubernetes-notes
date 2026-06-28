@@ -1588,17 +1588,152 @@
     \section{Taints and Tolerations vs Node Affinity}
     A combination of taints and tolerations an node affinityu rules can be used together to completely dediecate nodes for specifict pods.
 
-
     \chapter{Multi-container pods}
 
 
     \section{Multi-container pods}
+    Idea, decoupling a large monolithic application into microservices allow independently deployable components.
+    This architecture helps us scale up and down as well as modify each service as required rather than modifying the entire application.
 
+    At times yo may need two services to work together, such as web server with the main app.
+
+    You don't want to merge and bloat the code of the two services, as each of them target different features and you stil like them to be developed and deployed separately.
+    You only need the two to funcitonality to work together.
+
+    You need one web server per main app instance paired together so they can scale up and down together.
+    That is why you have multi-container pods that share the same lifecycle, which means they are created and destroyed together.
+    They share the same network space, which means they can refere to each other as localhost and they have access to the same storage volumes.
+
+    This way you do not have to eastablish volume sharing or services between the poods to enable communication between them.
+
+    \begin{lstlisting}[language=yaml, caption={Multi container example}]
+        apiVersion:
+        kind: pod
+        metadata:
+            name: simple-webapp
+            labels:
+                name: simple-webapp
+        spec:
+            containers:
+            - name: web-app # This is an array and allows for multiple containers in a single pod
+              image: web-app
+              ports:
+                - containerPort: 8080
+            - name: main-app
+              image: main-app
+    \end{lstlisting}
 
     \section{Multi-container pods design patterns}
+    There are different patterns for multi-container pods.
+    \subsubsection{Co-located Containers}
+%       TODO see diagram Co-located containers
+    Co-located containers - containers located in a single pod. Both the containers are meant to continue to run through the entire pod lifecycle.
+    These are usually used when two services are dependent on each other.
+    \subsubsection{Init containers}
+%    TODO see diagram
+    This is used when there are initialization step to be performaed when a pod starts before the applicaiton itself.
+    E.g: This could be an init container that waits for a database to be ready before starting the main applicaiton itself.
+    The init container does its job and ends its job and then the main applicaiton starts
+
+    \subsubsection{Sidecare container is set up}
+    A sidecar container is setup like an init container where the sidecar start first and does its job.
+    Instead of ending its run, it continues to run throughout the life cycle of the pod.
+    The main application starts after the sidecar container starts.
+
+    This is useful when you have a logger which needs to run along with the main application that needs to start before the main app starts.
+    but needs to continue to run as long as the main app runs and then after main app ends.
+
+    NOTE: with co-located containers there is no order as to which container starts. There is no guarantee that one will start without the other.
+    If thats not a real rquirement you may use that option.
+
+    NOTE: sidecar containers provides the ability to specify an order of startup and then continue to run throughout the pod lifecycle.
+
+    \begin{lstlisting}[language=yaml, caption={Multi container example}]
+        apiVersion:
+        kind: Pod
+        metadata:
+            name: simple-webapp
+            labels:
+                name: simple-webapp
+        spec:
+            containers:
+            - name: web-app
+              image: web-app
+              ports:
+                - containerPort: 8080
+            - name: main-app
+              image: main-app
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Init container example}]
+        apiVersion:
+        kind: Pod
+        metadata:
+            name: simple-webapp
+            labels:
+                name: simple-webapp
+        spec:
+            containers:
+            - name: web-app # This is an array and allows for multiple containers in a single pod
+              image: web-app
+              ports:
+                - containerPort: 8080
+            initContainers: # same level as the containers in YAML - initContainers run in sequence
+            - name: db-checker #Runs first
+              image: busybox
+              command: 'wait-for-db-to-start.sh'
+
+            - name: api-checker # Runs second
+              image: busybox
+              command: 'wait-for-another-api.sh'
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Init container example}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: myapp-pod
+            labels:
+                app: myapp
+        spec:
+            containers:
+            - name: myapp-container
+              image: busybox:1.28
+              command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+        initContainers:
+            - name: init-myservice
+              image: busybox
+              command: ['sh', '-c', 'git clone <some-repository-that-will-be-used-by-application> ;']
+    \end{lstlisting}
+
+%    See docs about init containers.
+
+    \begin{lstlisting}[language=yaml, caption={Sidecar container example}]
+        apiVersion:
+        kind: pod
+        metadata:
+            name: simple-webapp
+            labels:
+                name: simple-webapp
+        spec:
+            containers:
+            - name: web-app # This is an array and allows for multiple containers in a single pod
+              image: web-app
+              ports:
+                - containerPort: 8080
+            initContainers:
+            - name: log-shipper
+              image: busybox
+              command: 'setup-log-shipper.sh'
+              retartPolicy: Always
+    \end{lstlisting}
+
+%    TODO add Kibana side car example
 
 
     \section{Init containers}
+
+    %TODO see docs
 
 
     \chapter{Observability}

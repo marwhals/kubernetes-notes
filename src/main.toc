@@ -72,68 +72,71 @@
 \contentsline {chapter}{\numberline {4}Multi-container pods}{39}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Multi-container pods}{39}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Multi-container pods design patterns}{39}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Init containers}{39}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Observability}{41}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Readiness and Liveness Probes}{41}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Liveness Probes}{41}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Logging}{41}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Monitor and Debug application}{41}{section.5.4}%
-\contentsline {chapter}{\numberline {6}Pod Design}{43}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Labels, Selectors and Annotations}{43}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Rolling updates and Rollbacks in Deployments}{43}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Updating a deployment}{43}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Deployment strategy - Blue Green}{43}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Deployment strategy - Canary}{43}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Jobs}{43}{section.6.6}%
-\contentsline {section}{\numberline {6.7}CronJobs}{43}{section.6.7}%
-\contentsline {chapter}{\numberline {7}Services and Networking}{45}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Network Policies}{45}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Developing network policies}{45}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Ingress networking}{45}{section.7.3}%
-\contentsline {chapter}{\numberline {8}State Persistence}{47}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Introduction to Docker Storage}{47}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Storage in Docker}{47}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Volume Driver Plugins in Docker}{47}{section.8.3}%
-\contentsline {section}{\numberline {8.4}Volumes in Kubernetes}{47}{section.8.4}%
-\contentsline {section}{\numberline {8.5}Persistent Volumes}{47}{section.8.5}%
-\contentsline {section}{\numberline {8.6}Persistent volume claims}{47}{section.8.6}%
-\contentsline {section}{\numberline {8.7}Using PVCs in Pods}{47}{section.8.7}%
-\contentsline {section}{\numberline {8.8}Storage Classes}{47}{section.8.8}%
-\contentsline {section}{\numberline {8.9}Why Stateful Sets}{47}{section.8.9}%
-\contentsline {section}{\numberline {8.10}Sateful sets introduction}{47}{section.8.10}%
-\contentsline {section}{\numberline {8.11}Headless Services}{47}{section.8.11}%
-\contentsline {section}{\numberline {8.12}Storage in StatefulSets}{47}{section.8.12}%
-\contentsline {chapter}{\numberline {9}Security}{49}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Kubernetes Security Primitives}{49}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Authentication}{49}{section.9.2}%
-\contentsline {section}{\numberline {9.3}KubeConfig}{49}{section.9.3}%
-\contentsline {section}{\numberline {9.4}API Groups}{49}{section.9.4}%
-\contentsline {section}{\numberline {9.5}Authorization}{49}{section.9.5}%
-\contentsline {section}{\numberline {9.6}Role based access controls}{49}{section.9.6}%
-\contentsline {section}{\numberline {9.7}Cluster Roles}{49}{section.9.7}%
-\contentsline {section}{\numberline {9.8}Admission Controllers}{49}{section.9.8}%
-\contentsline {section}{\numberline {9.9}Validating and Mutating Admission Controllers}{49}{section.9.9}%
-\contentsline {section}{\numberline {9.10}API Versions}{49}{section.9.10}%
-\contentsline {section}{\numberline {9.11}API Deprecations}{49}{section.9.11}%
-\contentsline {section}{\numberline {9.12}Custom Resource Definition}{49}{section.9.12}%
-\contentsline {section}{\numberline {9.13}Custom Controllers}{49}{section.9.13}%
-\contentsline {section}{\numberline {9.14}Operator Framework}{49}{section.9.14}%
-\contentsline {chapter}{\numberline {10}Helm Fundementals}{51}{chapter.10}%
-\contentsline {section}{\numberline {10.1}Helm Introduction}{51}{section.10.1}%
-\contentsline {section}{\numberline {10.2}Install Helm}{51}{section.10.2}%
-\contentsline {section}{\numberline {10.3}Helm concepts}{51}{section.10.3}%
-\contentsline {chapter}{\numberline {11}Kustomize}{53}{chapter.11}%
-\contentsline {section}{\numberline {11.1}Kustomize Problem Statement and Ideology}{53}{section.11.1}%
-\contentsline {section}{\numberline {11.2}Kustomize vs Helm}{53}{section.11.2}%
-\contentsline {section}{\numberline {11.3}Kustomization yaml file}{53}{section.11.3}%
-\contentsline {section}{\numberline {11.4}Kustomization Output}{53}{section.11.4}%
-\contentsline {section}{\numberline {11.5}Kustomization ApiVersion and Kind}{53}{section.11.5}%
-\contentsline {section}{\numberline {11.6}Managing Directories}{53}{section.11.6}%
-\contentsline {section}{\numberline {11.7}Common Transformers}{53}{section.11.7}%
-\contentsline {section}{\numberline {11.8}Image Transformers}{53}{section.11.8}%
-\contentsline {section}{\numberline {11.9}Patches Intro}{53}{section.11.9}%
-\contentsline {section}{\numberline {11.10}Different Types of Patches}{53}{section.11.10}%
-\contentsline {section}{\numberline {11.11}Patches Dictionary}{53}{section.11.11}%
-\contentsline {section}{\numberline {11.12}Patches list}{53}{section.11.12}%
-\contentsline {section}{\numberline {11.13}Overlays}{53}{section.11.13}%
-\contentsline {section}{\numberline {11.14}Components}{53}{section.11.14}%
+\contentsline {subsubsection}{Co-located Containers}{40}{section*.47}%
+\contentsline {subsubsection}{Init containers}{40}{section*.48}%
+\contentsline {subsubsection}{Sidecare container is set up}{40}{section*.49}%
+\contentsline {section}{\numberline {4.3}Init containers}{42}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Observability}{43}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Readiness and Liveness Probes}{43}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Liveness Probes}{43}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Logging}{43}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Monitor and Debug application}{43}{section.5.4}%
+\contentsline {chapter}{\numberline {6}Pod Design}{45}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Labels, Selectors and Annotations}{45}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Rolling updates and Rollbacks in Deployments}{45}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Updating a deployment}{45}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Deployment strategy - Blue Green}{45}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Deployment strategy - Canary}{45}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Jobs}{45}{section.6.6}%
+\contentsline {section}{\numberline {6.7}CronJobs}{45}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Services and Networking}{47}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Network Policies}{47}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Developing network policies}{47}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Ingress networking}{47}{section.7.3}%
+\contentsline {chapter}{\numberline {8}State Persistence}{49}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Introduction to Docker Storage}{49}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Storage in Docker}{49}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Volume Driver Plugins in Docker}{49}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Volumes in Kubernetes}{49}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Persistent Volumes}{49}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Persistent volume claims}{49}{section.8.6}%
+\contentsline {section}{\numberline {8.7}Using PVCs in Pods}{49}{section.8.7}%
+\contentsline {section}{\numberline {8.8}Storage Classes}{49}{section.8.8}%
+\contentsline {section}{\numberline {8.9}Why Stateful Sets}{49}{section.8.9}%
+\contentsline {section}{\numberline {8.10}Sateful sets introduction}{49}{section.8.10}%
+\contentsline {section}{\numberline {8.11}Headless Services}{49}{section.8.11}%
+\contentsline {section}{\numberline {8.12}Storage in StatefulSets}{49}{section.8.12}%
+\contentsline {chapter}{\numberline {9}Security}{51}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Kubernetes Security Primitives}{51}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Authentication}{51}{section.9.2}%
+\contentsline {section}{\numberline {9.3}KubeConfig}{51}{section.9.3}%
+\contentsline {section}{\numberline {9.4}API Groups}{51}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Authorization}{51}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Role based access controls}{51}{section.9.6}%
+\contentsline {section}{\numberline {9.7}Cluster Roles}{51}{section.9.7}%
+\contentsline {section}{\numberline {9.8}Admission Controllers}{51}{section.9.8}%
+\contentsline {section}{\numberline {9.9}Validating and Mutating Admission Controllers}{51}{section.9.9}%
+\contentsline {section}{\numberline {9.10}API Versions}{51}{section.9.10}%
+\contentsline {section}{\numberline {9.11}API Deprecations}{51}{section.9.11}%
+\contentsline {section}{\numberline {9.12}Custom Resource Definition}{51}{section.9.12}%
+\contentsline {section}{\numberline {9.13}Custom Controllers}{51}{section.9.13}%
+\contentsline {section}{\numberline {9.14}Operator Framework}{51}{section.9.14}%
+\contentsline {chapter}{\numberline {10}Helm Fundementals}{53}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Helm Introduction}{53}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Install Helm}{53}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Helm concepts}{53}{section.10.3}%
+\contentsline {chapter}{\numberline {11}Kustomize}{55}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Kustomize Problem Statement and Ideology}{55}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Kustomize vs Helm}{55}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Kustomization yaml file}{55}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Kustomization Output}{55}{section.11.4}%
+\contentsline {section}{\numberline {11.5}Kustomization ApiVersion and Kind}{55}{section.11.5}%
+\contentsline {section}{\numberline {11.6}Managing Directories}{55}{section.11.6}%
+\contentsline {section}{\numberline {11.7}Common Transformers}{55}{section.11.7}%
+\contentsline {section}{\numberline {11.8}Image Transformers}{55}{section.11.8}%
+\contentsline {section}{\numberline {11.9}Patches Intro}{55}{section.11.9}%
+\contentsline {section}{\numberline {11.10}Different Types of Patches}{55}{section.11.10}%
+\contentsline {section}{\numberline {11.11}Patches Dictionary}{55}{section.11.11}%
+\contentsline {section}{\numberline {11.12}Patches list}{55}{section.11.12}%
+\contentsline {section}{\numberline {11.13}Overlays}{55}{section.11.13}%
+\contentsline {section}{\numberline {11.14}Components}{55}{section.11.14}%
