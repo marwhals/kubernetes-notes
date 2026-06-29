@@ -1975,175 +1975,739 @@
 
 
     \section{Labels, Selectors and Annotations}
+    Over time you may end up having hundreds of thousands of Kubernetes objects in your cluster.
+    You will need a way to filter and view different object sby different categories, such as to group objects by their type or view objects by their application or by their fuynction.
 
+    You can group and slecto objects using labels and slectors ofr each objects.
+    Attach labesl as per needs like app, function etc.
+
+    Then while selecting, specify a condition to filter specific objects.
+
+    \begin{lstlisting}[language=yaml, caption={Selector example}]
+        apiVersion:
+        kind: Pod
+        metadata:
+            name: simple-webapp
+            labels:
+                app: App1
+                Function: front-end
+        spec:
+            containers:
+            - name: simple-webapp
+              image: simple-webapp
+              ports:
+                - containerPort: 8080
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl get pods --selector app=App1
+    \end{lstlisting}
+
+    This is one use case of labels and selectors.
+    Kubenertes use labels and slectors internally to connect different objects together.
+
+    \begin{lstlisting}[language=yaml, caption={ReplicaSet labels example}]
+        apiVersion:
+        kind: Pod
+        metadata:
+            name: simple-webapp
+            labels: # replica set labels
+                app: App1
+                Function: front-end
+        spec:
+            replicas: 3
+            selector:
+                matchLabels:
+                    app: App1 # used to connect replicaset to the pods
+            template:
+                metadata:
+                    labels: # pods labels
+                        app: App1
+                        function: Front-end
+            spec:
+                containers:
+                - name: simple-webapp
+                  image: simple-webapp
+    \end{lstlisting}
+
+    In order to connect the replica set to the pods, we configure the selector field under Replica set specification to match the labels defined on the pod.
+    A single label will do if it matches correctly.
+
+    If there are other pod poarts with same label but with a different function, then you coudl specify both the labels to ensure that the right parts are discovered by the replica set on createion.
+    If the labels match, the replica set is created successfully.
+    
+    It works the same for other objects like a service.
+    When a service is created, it uses the selector defined in the service definitino file to match the labels set on the pods in the replica set defintion file.
+    
+    \subsubsection{Annotations}
+    While labels an selectors are used to group and select objects, annotations are used to record other details for informatory purposes.
+
+    \begin{lstlisting}[language=yaml, caption={ReplicaSet labels example}]
+        apiVersion: apps/v1
+        kind: ReplicaSet
+        metadata:
+            name: simple-webapp
+            labels:
+                app: App1
+                function: Front-end
+        annoations:
+            buildversions: 1.34 # These are details that can just be used for some other purpose
+        spec:
+            replicas: 3
+            selector:
+                matchLabels:
+                    app: App1
+            template:
+                metadata:
+                    labels:
+                        app: App1
+                        function: Front-end
+                spec:
+                    containers:
+                    - name: simple-webapp
+                      image: simple-webapp
+    \end{lstlisting}
 
     \section{Rolling updates and Rollbacks in Deployments}
+    When you first create a deployment it triggeres a rollout.
+    A new rollour creates a new replica set, which is recorded as a new deployment revision in the future when the applicaiton is upgraded.
+    This means when the container version is updated to a new one, a new rollout is triggered and new deployrevision is created named revision two.
+
+    This helps keep track fot he changess made to out deployment and enabled us to roll back to a previous version fo deployment if necessary.
+
+    This comand can be used to see the status of a rollout.
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl rollout status deployment/myapp-deployment
+        kubectl rollout history deployment/myapp-deployment # To see the revions and history of a rollout, run this command.
+    \end{lstlisting}
+
+    \subsubsection{Deployment strategies}
+    There are two types of deployment strategies.
+
+    Examples: say you have give replicas of your web application instance deployed.
+    One wasy to updated these to a newer verions is to destroy all of these and then create newer versions of application instances.
+    I.e destroy the five instances and then deploy five new version of the instances.
+
+    The problem here is that during the gap where they are destroyed and the new versions are up, the application is down and inaccessible to users.
+
+    This strategy is know as the recreate strategy and is not the default deployment strategy.
+
+    The second strategy is where we don not destroy the all at once.
+    Instead we take down the older verions and bring up a newer version one by one.
+    This way the application never goes down and the upgrade is seamless.
+
+    Note: If you do not specify a strategy while create the deployment, it will assume it to be a rolling update.
+    In other words, the rolling update is the default deployment strategy.
+
+    How exactyla do yo uupdate your deploiyment?
+    This could be different thing, such as updating your applicaiton verions by update the verions of Docker containers used, updating their labels or updating the number of replicas etc.
+    Since there is a deployment definiton file, it is easy for use to modify this file once we make the necessary changes.
+
+    \begin{lstlisting}[language=yaml, caption={Deployment example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-deployment
+            labels:
+                app: myapp
+                function: front-end
+        spec:
+            template:
+                metadata:
+                    name: myapp-pod
+                    labels:
+                        app: myapp
+                        type: front-end
+                spec:
+                    containers:
+                    - name: nginx-container
+                      image: nginx: 1.7.1
+        replicas: 3
+        selector:
+            matchLabels:
+                type: front-end
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl apply -f deployment-definition
+    \end{lstlisting}
+
+    Run the above command to apply the changes.
+    A new rollout is triggered and a new revision of the deployment is created.
+
+    There is another way to do the same thing.
+    You could use the kube conttorl set image command to update the image of your application.
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl set image deployment/myapp-deployment \nginx=nginx:1.9.1
+    \end{lstlisting}
+
+    Remeber, doing it this way will result in the deployment definiton file having a different configuraiton.
+    You msut be carefuy when using the same defition file to make changes in the future.
+
+    The difference betwen the createate and rolling update strategies can also be seen when you view the deployments in details from kube control.
+
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl describe deployment myapp-deployment
+    \end{lstlisting}
+
+    Whens using the above command yyou will notice when the recarete strategy was used.
+    The events indivate that the old replica set was scaled down to zero first and then the new replica sets scaled up to give.
+
+    However, when the rolling update strategy was used, the old replica set was scaled down one at a time,
+    simulataneously scaling up the new replica set one at a time.
+
+    \subsubsection{Upgrades}
+    Example: deploy five replicas.
+    First creates a replica set automatically, which int turn creates the number of pods required to meet the number of replicas.
+    When you upgrade your application, the Kubernetes deployyment object creates a new replica set under the fhhood and starts deploying the containerrs there.
+    At the same time taking down the pods in the old replica set following a rolling update strategy.
+
+    This can be seen when you try to list the replica sets using "kubetl get replicasets" command.
+
+    This will show the old replica set with zero pods and the new replica set with five parts.
+
+    Scenario:
+    Say for instance, once you upgrade your application you realise something isn't right. Something is wrong with the new version of the build you used etc.
+    You now want to roll back your update.
+
+    Kubernetes deployments allow you to roll back to a previous revision, to undoi a change.
+
+
+    Run the following command with the name of the deployment
+    \begin{lstlisting}[language=terminal, caption={Commands}]
+        kubectl rollout undo deployment myapp-deployment
+    \end{lstlisting}
+
+    The deployment will then destroy the pods in the new replica set and bring the olders ones up in the old replica set and you application is back to its older format.
+
+    When you compare the output of the kubectl get replicasets command before and after the rollback. You will notice the difference between before the rollback.
+
+    \subsection{Command summary}
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f deployment-defintion.yml # Create
+        kubectl get deployments # Get
+
+        # ---- update
+        kubectl apply -f deployment-definition.yml
+        kubectl set image deployment/myapp-deployment nginx=nginx:1.9.1
+
+        # ----status
+        kubectl rollout status deployment/myapp-deployment
+        kubectl rollout history deployment/myapp-deployment
+
+        kubectl rollout undo deployment/myapp-deployment # Rollback!
+
+    \end{lstlisting}
 
 
     \section{Updating a deployment}
-
+%    TODO see examples
 
     \section{Deployment strategy - Blue Green}
+    There are other strategies as well that can be specifed in the deployment.
+    One of them is blue-green deployments.
 
+    Here we have the new version deployed alongside the old version.
+    The old version is called blue and the new version is called green.
+    100\% of the traffic is still routed to the old veriosns.
+    At this point in time tests are run on the new version and once all the tests have passed we switch traffic to the new version all at once.
+
+    These strategies are best implemented with service measures like Istio.
+    See service mesh with istio.
+
+    Heres how it works.
+    First we have the originoal verison of our applicaiton deployed as a service.
+    We call it the blue deployment.
+    Then we create a service to route traffic to it.
+
+    Now to associate ther service to the pods in the deployment we set a label on the pods. Lets call it version set to v1.
+    We use the same label as the slector on ther service.
+
+    We then deploy a second deployment.
+    Lets call it green with a new version of the application.
+    Once all tests are passed we route traffic from the service to the green deployment by wsiwtching the label selceotr on the service.
+    So for the new deployment, we set a label version to v2.
+    Now that we have set the label version to v2 to the pods on the new deployment all we need to do is switch the labels specified under the slector of the service to v2 as well.
+    Then the service switches traffic to the pods in the green deployment.
+
+    \subsection{Examples}
+
+    \begin{lstlisting}[language=yaml, caption={Blue deployment example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-blue
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metadata:
+                    name: myapp-pod
+                    labels:
+                        versions: v1 # Important for the deployment
+                spec:
+                    containers:
+                    - name: app-container
+                      image: myapp-image:1.0
+        replicas: 5
+        selectors:
+            matchLabels:
+                version: v1
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Green deployment example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-green
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metadata:
+                    name: myapp-pod
+                    labels:
+                        versions: v2 # Important for the deployment
+                spec:
+                    containers:
+                    - name: app-container
+                      image: myapp-image:2.0
+        replicas: 5
+        selectors:
+            matchLabels:
+                version: v2
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Service defintion example}]
+        apiVersion: apps/v1
+        kind: Service
+        metadata:
+            name: my-service
+        spec:
+            selector:
+                version: v1 #Change this to v2 when ready to reroute traffic to the green deployment
+    \end{lstlisting}
 
     \section{Deployment strategy - Canary}
+    In this strategy we deploy the new version and route only a small percentrage of traffic to it.
+    The majority of traffic is being routed to the older version, but we have a small percentage routed to the new version.
+    At this point, we run tests and if everything looks good we upgrade the origonal deployment with the newer version of the application.
+%TODO see/create diagram
+
+    With the canary deployment we want traffic to go to both deployments at the same time.
+    However we only want to route a small percentage of traffic to version two, so how do we do that?
+
+    For this we can create a common label.
+    Call it App, which is set to frontend and we update the slector label in the service to match this common label.
+    That solves the first problem.
+
+    We now have traffic going to both the vewions of applicaitons but it's reouting it equally. I.e 50\% to each deployment.
+
+    How do we reduce traffic to canary deployemnt?
+    We only want a small percentage of traffic to go to the canary deployment.
+
+    We can do this by simply reducein the number of pods in the canary deployment, to the minimum possible, in this case one.
+    So since a service distirbutes traffic between all pods equally the canary deployment will recieve less traffic.
+
+    Now once tests are prefomred and we're confdent with the new version, we can now upgrade the version of pods in the primary deployment and delete the canary deployment altogether.
+
+    one of the caveats of performing a canary update this way with just Kubernetes deployments and service is that we have limited contorl over the split of traffic between each deployment.
+    The traffic split is always going to be governed by the number of pods present in each deployment.
+
+    Notes about Istio:
+    With Istio, you can define the exact percentage of traffic to be distributed between each deployment
+    and its not really dependent upon the number of pods in a deployment.
+
+    \subsection{Canary Deployment Examples}
+
+    \begin{lstlisting}[language=yaml, caption={Primary deployment example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-primary
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metadata:
+                    name: myapp-pod
+                    labels:
+                        version: v1 # Important for the deployment
+                        app: front-end
+                spec:
+                    containers:
+                    - name: app-container
+                      image: myapp-image:1.0
+        replicas: 5
+        selectors:
+            matchLabels:
+                app: front-end
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Canary deployment example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: myapp-canary
+            labels:
+                app: myapp
+                type: front-end
+        spec:
+            template:
+                metadata:
+                    name: myapp-pod
+                    labels:
+                        versions: v2 # Important for the deployment
+                        app: front-end
+                spec:
+                    containers:
+                    - name: app-container
+                      image: myapp-image:2.0
+        replicas: 1 # Set to one since we only want a small percentage of traffic
+        selectors:
+            matchLabels:
+                version: front-end
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Service defintion example}]
+        apiVersion: v1
+        kind: Service
+        metadata:
+            name: my-service
+        spec:
+            selector:
+                app: front-end
+    \end{lstlisting}
 
 
     \section{Jobs}
+    There are different types of workloads that a container can servce. E.g web, applicaiton and database.
+    Some workloads are meant to conitue to run for a long period of time until manually taken down.
 
+    There are other kinds of workloads as match processing, analytics or reporting which carry out a specific task and then finish.
+    Ee.g performing a computation or processing an image, performing some kind analytics on a large data set, generating a report and sending an email etc.
+
+    These workloads are meant to live for a short period of time, perform a set of tasks and then finish.
+
+
+    Consider in docker.
+
+    Docker run ubuntu expr 3 + 2.
+    Docker runs the expression, produced an output and the container then goes into a exited state.
+    This can be seen with docker ps -a. Return code of the operation is shown in the bracket as well.
+
+    \begin{lstlisting}[language=yaml, caption={Example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: math-pod
+        spec:
+            containers:
+            - name: math-add
+              image: ubuntu
+              command: ['expr', '3', '+', '2']
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f pod-definition.yaml
+        kubectl get pods
+    \end{lstlisting}
+
+    Replicating the same thing in kubernetes.
+    Create a pod defintionfile to perform the same operation.
+    When the pod is crated, it runs a container, performs the computation taask and exist.
+    The pod goes into a completed state but it then recreates the container in an attempt to leave it running.
+    Againt the container peforms the rquired computation task and exists
+    This continue to happen un til a threshold is reached.
+
+    Why does this happen?
+
+    Kubernetes wants your application to live forever.
+    The default behaviour of pods is to attempt to restart the container in an effort to keep it running.
+    This behaviour is defined by the restart policy set on the pod which is by default set to always.
+    That is why pod always recreates the container when it exists.
+
+    \begin{lstlisting}[language=yaml, caption={Example}]
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+            name: math-pod
+        spec:
+            containers:
+            - name: math-add
+              image: ubuntu
+              command: ['expr', '3', '+', '2']
+            restartPolicy: Always # Can set to 'Never' or 'onFailure'
+    \end{lstlisting}
+
+    You can override this behaviour by setting this property to never or on failure.
+    That way kibernetes does not retard the container once the job is finished.
+
+    We have new use cases for batch processing.
+    We have large datasets that require multiple pods to process the data in parallel.
+    - We want to make sure that all pods perform the task assigned ot them successfully and then exit.
+    We need a managed that can create as many pods as we want to get work done and snure work gets done successfully.
+
+    \subsection{ReplicaSets vs Jobs}
+    While a replica set is used to make sure a specfied number of pods are running at all times.
+    A job is used to run a set of pods to perform a given task to completion.
+
+    \subsubsection{Example}
+    \begin{lstlisting}[language=yaml, caption={Pod definition file}]
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: math-pod
+        spec:
+            containers:
+            - name: math-add
+              image: ubuntu
+              command: ['expr', '3', '+', '2']
+            restartPolicy: Never
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=yaml, caption={Job definition file}]
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+            name: math-add-job
+        spec:
+            containers:
+            - name: math-add
+              image: ubuntu
+              command: ['expr', '3', '+', '2']
+            restartPolicy: Never
+    \end{lstlisting}
+
+    Use these commands to seet that kubernetes did not try and restart the pod.
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f job-definition.yaml
+        kubectl get jobs
+        kubectl get pods
+    \end{lstlisting}
+
+    Output of the pod should be in the pod's standard output.
+    The standard output of a container can be seen using hte logs command.....
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl logs math-add-job-1d87pn # See the output
+        kubectl delete job math-add-job # Delete the job
+    \end{lstlisting}
+
+    Deleting the job will also result in deleting the pods that were created by the job.
+
+    Note: Typically this is not how jobs are implemented in the read world.
+
+    \subsection{Running multiple pods}
+
+    \begin{lstlisting}[language=yaml, caption={Job definition file}]
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+            name: math-add-job
+        spec:
+            completions: 3
+            template:
+                spec:
+                    containers:
+                    - name: math-add
+                      image: ubuntu
+                      command: ['expr', '3', '+', '2']
+                    restartPolicy: Never
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f job-defintion.yaml
+        kubectl get jobs
+        kubectl get pods
+    \end{lstlisting}
+
+    We should see the desired count is three and the successful count is three.
+    By default these pods are created on after another.
+    The second part is created only after the first is finished.
+
+    \subsubsection{Failing jobs}
+    Consider if the pods are going to fail?
+%    TODO pinch random container example
+    \begin{lstlisting}[language=yaml, caption={Job definition file}]
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+            name: random-error-job
+        spec:
+            completions: 3
+            template:
+                spec:
+                    containers:
+                    - name: random-error
+                      image: kodekloud/random-error
+                    restartPolicy: Never
+    \end{lstlisting}
+
+\subsubsection{Creating jobs in parallel}
+    Jobs can be created in paralellism
+    \begin{lstlisting}[language=yaml, caption={Job definition file}]
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+            name: random-error-job
+        spec:
+            completions: 3
+            parallelism: 3
+            template:
+                spec:
+                    containers:
+                    - name: random-error
+                      image: kodekloud/random-error
+                    restartPolicy: Never
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f job-defintion.yaml
+        kubectl get jobs
+        kubectl get pods
+    \end{lstlisting}
+
+%    TODO see example
 
     \section{CronJobs}
+    A CronJob is a job that can be scheduled just like CronTab in Linux.
+
+    Example: say you have a job that generates a report and sends an email. You can create the job using the cube control create command but it runs instantly .
+
+    Instead, you could create a CronJob to schedule and run it periodically.
+
+    \subsection{CronJob Example}
+
+    \begin{lstlisting}[language=yaml, caption={Job definition file}]
+        apiVersion: batch/v1beta1
+        kind: CronJob
+        metadata:
+            name: reporting-cron-job
+        spec:
+            schedule: "*/1 * * * *"
+            jobTemplate:
+                spec:
+                    completions: 3
+                    parallelism: 3
+                    template:
+                        spec:
+                            containers:
+                            - name: reporting-tool
+                              image: reporting-tool
+                            retartPolicy: Never
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=terminal, caption={Sumnmary of commands}]
+        kubectl create -f cron-job-definition.yaml
+        kubectl get cronjob
+    \end{lstlisting}
 
 
     \chapter{Services and Networking}
 
-
     \section{Network Policies}
-
 
     \section{Developing network policies}
 
-
     \section{Ingress networking}
-
 
     \chapter{State Persistence}
 
-
     \section{Introduction to Docker Storage}
-
 
     \section{Storage in Docker}
 
-
     \section{Volume Driver Plugins in Docker}
-
 
     \section{Volumes in Kubernetes}
 
-
     \section{Persistent Volumes}
-
 
     \section{Persistent volume claims}
 
-
     \section{Using PVCs in Pods}
-
 
     \section{Storage Classes}
 
-
     \section{Why Stateful Sets}
-
 
     \section{Sateful sets introduction}
 
-
     \section{Headless Services}
-
 
     \section{Storage in StatefulSets}
 
-
     \chapter{Security}
-
 
     \section{Kubernetes Security Primitives}
 
-
     \section{Authentication}
-
 
     \section{KubeConfig}
 
-
     \section{API Groups}
-
 
     \section{Authorization}
 
-
     \section{Role based access controls}
-
 
     \section{Cluster Roles}
 
-
     \section{Admission Controllers}
-
 
     \section{Validating and Mutating Admission Controllers}
 
-
     \section{API Versions}
-
 
     \section{API Deprecations}
 
-
     \section{Custom Resource Definition}
-
 
     \section{Custom Controllers}
 
-
     \section{Operator Framework}
-
 
     \chapter{Helm Fundementals}
 
-
     \section{Helm Introduction}
-
 
     \section{Install Helm}
 
-
     \section{Helm concepts}
-
 
     \chapter{Kustomize}
 
-
     \section{Kustomize Problem Statement and Ideology}
-
 
     \section{Kustomize vs Helm}
 
-
     \section{Kustomization yaml file}
-
 
     \section{Kustomization Output}
 
-
     \section{Kustomization ApiVersion and Kind}
-
 
     \section{Managing Directories}
 
-
     \section{Common Transformers}
-
 
     \section{Image Transformers}
 
-
     \section{Patches Intro}
-
 
     \section{Different Types of Patches}
 
-
     \section{Patches Dictionary}
-
 
     \section{Patches list}
 
-
     \section{Overlays}
-
 
     \section{Components}
 
